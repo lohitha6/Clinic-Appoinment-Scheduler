@@ -5,4 +5,4 @@ RUN npm install
 COPY . .
 RUN npm install -g @angular/cli
 EXPOSE 3000 4200
-CMD ["npm", "run", "dev"]
+CMD ["sh", "-c", "npm run server & ng serve --host 0.0.0.0 --port 4200"]
