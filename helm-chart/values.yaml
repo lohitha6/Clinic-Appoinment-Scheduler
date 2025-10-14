@@ -1,0 +1,22 @@
+image:
+  repository: lohitha12100706/clinic-scheduler
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 4200
+  targetPort: 3000
+
+ingress:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+replicaCount: 1
