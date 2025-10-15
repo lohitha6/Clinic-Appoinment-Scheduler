@@ -5,11 +5,11 @@ const bcrypt = require('bcryptjs');
 async function setupDatabase() {
   // First connect to postgres database to create clinic database
   const adminClient = new Client({
-    user: 'postgres',
-    host: 'localhost',
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
     database: 'postgres',
-    password: 'admin',
-    port: 5432,
+    password: process.env.DB_PASSWORD || 'admin',
+    port: process.env.DB_PORT || 5432,
   });
 
   try {
@@ -32,11 +32,11 @@ async function setupDatabase() {
 
     // Now connect to clinic database and run schema
     const clinicClient = new Client({
-      user: 'postgres',
-      host: 'localhost',
-      database: 'clinic',
-      password: 'admin',
-      port: 5432,
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'clinic',
+      password: process.env.DB_PASSWORD || 'admin',
+      port: process.env.DB_PORT || 5432,
     });
 
     await clinicClient.connect();
