@@ -82,12 +82,77 @@ pipeline {
                 }
             }
         }
+        
+        stage('Deploy Prometheus') {
+            when { branch 'main' }
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
+                    sh """
+                        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                        helm repo update
+                        
+                        helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+                            --namespace monitoring \
+                            --create-namespace \
+                            --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
+                    """
+                }
+            }
+        }
+        
+        stage('Configure Monitoring') {
+            when { branch 'main' }
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
+                    sh """
+                        kubectl apply -f - <<EOF
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: clinic-scheduler-monitor
+  namespace: production
+  labels:
+    app: clinic-scheduler
+spec:
+  selector:
+    matchLabels:
+      app: clinic-scheduler
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+EOF
+                    """
+                }
+            }
+        }
+        
+        stage('Verify Monitoring') {
+            when { branch 'main' }
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig']) {
+                    sh """
+                        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=prometheus \
+                            --namespace=monitoring --timeout=300s
+                        
+                        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=grafana \
+                            --namespace=monitoring --timeout=300s
+                        
+                        echo "Grafana admin password:"
+                        kubectl get secret prometheus-grafana \
+                            --namespace=monitoring \
+                            -o jsonpath="{.data.admin-password}" | base64 --decode
+                    """
+                }
+            }
+        }
     }
     
     post {
         success {
             echo "✅ Build ${BUILD_NUMBER} completed successfully"
             echo "✅ Clinic Scheduler deployed successfully"
+            echo "✅ Prometheus & Grafana monitoring deployed"
             echo "Docker: ${DOCKER_REPO}:${IMAGE_TAG}"
         }
         failure {
