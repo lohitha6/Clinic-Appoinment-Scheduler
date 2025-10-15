@@ -75,7 +75,7 @@ pipeline {
                             --set image.repository=${DOCKER_REPO} \
                             --set image.tag=${IMAGE_TAG} \
                             --set service.port=4200 \
-                            --set service.targetPort=3002 \
+                            --set service.targetPort=4200 \
                             --namespace production \
                             --create-namespace
                     """
