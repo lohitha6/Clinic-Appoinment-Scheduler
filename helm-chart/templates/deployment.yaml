@@ -30,8 +30,6 @@ spec:
           value: postgres
         - name: DB_PASSWORD
           value: admin
-        - name: PORT
-          value: "4200"
         ports:
         - containerPort: {{ .Values.service.targetPort }}
         resources:
