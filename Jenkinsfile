@@ -75,7 +75,7 @@ pipeline {
                             --set image.repository=${DOCKER_REPO} \
                             --set image.tag=${IMAGE_TAG} \
                             --set service.port=4200 \
-                            --set service.targetPort=3000 \
+                            --set service.targetPort=3002 \
                             --namespace production \
                             --create-namespace
                     """
@@ -151,20 +151,9 @@ EOF
     post {
         success {
             echo "✅ Build ${BUILD_NUMBER} completed successfully"
-            echo "✅ Build ${BUILD_NUMBER} deployed successfully"
+            echo "✅ Clinic Scheduler deployed successfully"
+            echo "✅ Prometheus & Grafana monitoring deployed"
             echo "Docker: ${DOCKER_REPO}:${IMAGE_TAG}"
-            
-            script {
-                sh """
-                    git config user.name "Jenkins CI"
-                    git config user.email "jenkins@clinic-scheduler.com"
-                    
-                    echo "Build ${BUILD_NUMBER} deployed successfully - Docker: ${DOCKER_REPO}:${IMAGE_TAG}" > deployment-status.txt
-                    git add deployment-status.txt
-                    git commit -m "✅ Build ${BUILD_NUMBER} deployed successfully - Docker: ${DOCKER_REPO}:${IMAGE_TAG}"
-                    git push origin main
-                """
-            }
         }
         failure {
             echo "❌ Build ${BUILD_NUMBER} failed"

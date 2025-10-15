@@ -6,17 +6,17 @@ image:
 service:
   type: ClusterIP
   port: 4200
-  targetPort: 3000
+  targetPort: 3002
 
 ingress:
   enabled: false
 
 resources:
   limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
     cpu: 500m
     memory: 512Mi
-  requests:
-    cpu: 250m
-    memory: 256Mi
 
 replicaCount: 1
